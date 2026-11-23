@@ -213,7 +213,11 @@ class Provider:
         req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=h)
         try:
             with urllib.request.urlopen(req, timeout=timeout) as r:
-                return json.loads(r.read().decode("utf-8", "replace"))
+                body = r.read().decode("utf-8", "replace")
+            try:
+                return json.loads(body)
+            except Exception:
+                raise BadReply("not json from server: %s" % (body[:150] or "empty"))
         except urllib.error.HTTPError as e:
             txt = ""
             try:
@@ -311,6 +315,9 @@ class Pool:
             except BadReply as e:
                 last = e
                 self.errors += 1
+                p.fails += 1
+                if p.fails >= 3:
+                    p.dead_until = time.time() + 1800
             except ProviderError as e:
                 last = e
                 self.errors += 1
@@ -356,11 +363,21 @@ class Pool:
     def ping(self):
         out = []
         for p in self.providers:
-            try:
-                m = p.model()
-                txt = p.request(m, "Reply with JSON only.", 'Return {"ok": true}', None, 30, 0.0, 40)
-                parse_json(txt)
-                out.append((p.name, True, "answers with %s" % m))
-            except Exception as e:
-                out.append((p.name, False, "%s" % str(e)[:160]))
+            msg = ""
+            for attempt in range(3):
+                try:
+                    m = p.model()
+                    txt = p.request(m, "Reply with JSON only.", 'Return {"ok": true}', None, 60, 0.0, 40)
+                    parse_json(txt)
+                    out.append((p.name, True, "answers with %s" % m))
+                    msg = ""
+                    break
+                except Exception as e:
+                    msg = "%s" % str(e)[:200]
+                    if "429" in msg and attempt < 2:
+                        time.sleep(8)
+                        continue
+                    break
+            if msg:
+                out.append((p.name, False, msg))
         return out
