@@ -1,5 +1,6 @@
 {
   "run_minutes": 325,
-  "publish_min_minutes": 45,
+  "publish_min_minutes": 10,
+  "publish_every": 8,
   "workers": 4
 }
