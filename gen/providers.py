@@ -231,14 +231,19 @@ class Provider:
             try:
                 return json.loads(body)
             except Exception:
-                raise BadReply("not json from server: %s" % (body[:150] or "empty"))
+                raise BadReply("not json from server (status %s, address %s): %s" % (getattr(r, "status", "?"), r.geturl(), body[:150] or "empty"))
         except urllib.error.HTTPError as e:
             txt = ""
             try:
                 txt = e.read().decode("utf-8", "replace")[:300]
             except Exception:
                 pass
-            err = ProviderError("%s %s" % (e.code, txt))
+            hd = ""
+            try:
+                hd = " | " + ", ".join("%s=%s" % (k, v) for k, v in e.headers.items() if k.lower().startswith(("retry-after", "x-ratelimit", "ratelimit", "x-rate")))
+            except Exception:
+                pass
+            err = ProviderError("%s %s%s" % (e.code, txt, hd))
             err.code = e.code
             err.retry = e.headers.get("Retry-After") if e.headers else None
             err.text = txt
@@ -377,21 +382,20 @@ class Pool:
     def ping(self):
         out = []
         for p in self.providers:
-            msg = ""
-            for attempt in range(3):
-                try:
-                    m = p.model()
-                    txt = p.request(m, "Reply with JSON only.", 'Return {"ok": true}', None, 60, 0.0, 40)
-                    parse_json(txt)
-                    out.append((p.name, True, "answers with %s" % m))
-                    msg = ""
-                    break
-                except Exception as e:
-                    msg = "%s" % str(e)[:200]
-                    if "429" in msg and attempt < 2:
-                        time.sleep(8)
-                        continue
-                    break
-            if msg:
-                out.append((p.name, False, msg))
+            for m in p.models:
+                msg = ""
+                for attempt in range(2):
+                    try:
+                        txt = p.request(m, "Reply with JSON only.", 'Return {"ok": true}', None, 60, 0.0, 40)
+                        parse_json(txt)
+                        msg = ""
+                        break
+                    except Exception as e:
+                        msg = "%s" % str(e)[:400]
+                        if "429" in msg and attempt < 1:
+                            time.sleep(10)
+                            continue
+                        break
+                out.append(("%s / %s" % (p.name, m), not msg, msg or "works"))
+                time.sleep(2)
         return out
