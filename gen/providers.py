@@ -12,9 +12,9 @@ OPENAI_STYLE = {
     "groq": {
         "url": "https://api.groq.com/openai/v1/chat/completions",
         "env": "GROQ_API_KEY",
-        "models": ["openai/gpt-oss-120b", "llama-3.3-70b-versatile", "llama-3.1-8b-instant"],
-        "rpm": 20,
-        "rpd": 900,
+        "models": ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "meta-llama/llama-4-scout-17b-16e-instruct", "llama-3.3-70b-versatile"],
+        "rpm": 25,
+        "rpd": 2500,
     },
     "cerebras": {
         "url": "https://api.cerebras.ai/v1/chat/completions",
@@ -26,7 +26,7 @@ OPENAI_STYLE = {
     "mistral": {
         "url": "https://api.mistral.ai/v1/chat/completions",
         "env": "MISTRAL_API_KEY",
-        "models": ["mistral-small-latest", "open-mistral-nemo"],
+        "models": ["open-mistral-nemo", "mistral-small-latest", "ministral-8b-latest"],
         "rpm": 25,
         "rpd": 3000,
     },
@@ -127,6 +127,7 @@ class Provider:
         self.day = time.strftime("%Y-%m-%d", time.gmtime())
         self.lock = threading.Lock()
         self.warned = False
+        self.last_model = None
 
     def roll(self):
         d = time.strftime("%Y-%m-%d", time.gmtime())
@@ -145,13 +146,14 @@ class Provider:
         return now >= self.dead_until
 
     def model(self):
-        for m in self.models:
-            if m not in self.dead_models:
-                return m
-        return None
+        alive = [m for m in self.models if m not in self.dead_models]
+        if not alive:
+            return None
+        self.rr = getattr(self, "rr", -1) + 1
+        return alive[self.rr % len(alive)]
 
-    def kill_model(self):
-        m = self.model()
+    def kill_model(self, m=None):
+        m = m or self.last_model
         if m:
             self.dead_models.add(m)
 
@@ -323,6 +325,7 @@ class Pool:
             model = p.model()
             if not model:
                 continue
+            p.last_model = model
             tried.append(p.name)
             try:
                 p.used += 1
@@ -342,7 +345,10 @@ class Pool:
                 self.errors += 1
                 code = getattr(e, "code", 0)
                 text = (getattr(e, "text", "") or "").lower()
-                if code == 429:
+                if code == 429 and re.search(r"limit-req-minute=0\b", text):
+                    p.kill_model()
+                    self.log("%s: %s has no free requests on this account, skipping it" % (p.name, p.last_model))
+                elif code == 429:
                     p.fails += 1
                     if re.search(r"per day|daily|day\b|quota|exhaust|credits", text) and p.fails >= 2:
                         p.dead_until = time.time() + 3600 * 3

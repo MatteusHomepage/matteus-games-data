@@ -583,6 +583,15 @@ def check():
         print("  PROBLEM  no AI key found. Add a key as a secret (see SETUP.txt).")
     for name, ok, msg in llm.pool.ping():
         print("  %-8s %s" % ("OK" if ok else "PROBLEM", "%s: %s" % (name, msg)))
+    for p in llm.pool.providers:
+        if p.name == "github":
+            import urllib.request
+            try:
+                rq = urllib.request.Request("https://models.github.ai/catalog/models", headers={"Authorization": "Bearer " + p.key, "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28", "User-Agent": "MatteusGames"})
+                with urllib.request.urlopen(rq, timeout=30) as r:
+                    print("  INFO     github model list: status %s, starts with: %s" % (r.status, r.read(300).decode("utf-8", "replace").replace("\n", " ")))
+            except Exception as e:
+                print("  INFO     github model list failed: %s" % str(e)[:300])
     try:
         core.sparql("SELECT ?x WHERE { ?x wdt:P31 wd:Q6256 } LIMIT 1", tries=1)
         print("  OK       Wikidata (QLever) answers")
