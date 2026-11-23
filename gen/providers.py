@@ -50,6 +50,17 @@ GEMINI = {"env": "GEMINI_API_KEY", "models": ["gemini-2.5-flash-lite", "gemini-2
 CLOUDFLARE = {"models": ["@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct"], "rpm": 20, "rpd": 150}
 
 
+class KeepPost(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        if code in (301, 302, 303, 307, 308) and req.data is not None:
+            h = {k: v for k, v in req.header_items() if k.lower() not in ("host", "content-length")}
+            return urllib.request.Request(newurl, data=req.data, headers=h, method="POST")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+OPENER = urllib.request.build_opener(KeepPost())
+
+
 class ProviderError(Exception):
     pass
 
@@ -198,6 +209,9 @@ class Provider:
         if "gpt-oss" in model:
             body["reasoning_effort"] = "low"
         hdr = {"Authorization": "Bearer " + self.key}
+        if self.name == "github":
+            hdr["Accept"] = "application/vnd.github+json"
+            hdr["X-GitHub-Api-Version"] = "2022-11-28"
         if self.name == "openrouter":
             hdr["HTTP-Referer"] = "https://matteus-aydin.se"
             hdr["X-Title"] = "Matteus Games"
@@ -212,7 +226,7 @@ class Provider:
         h.update(headers)
         req = urllib.request.Request(url, data=json.dumps(body).encode(), headers=h)
         try:
-            with urllib.request.urlopen(req, timeout=timeout) as r:
+            with OPENER.open(req, timeout=timeout) as r:
                 body = r.read().decode("utf-8", "replace")
             try:
                 return json.loads(body)
