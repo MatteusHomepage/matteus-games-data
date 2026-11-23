@@ -1,0 +1,386 @@
+Name a car brand
+Name a book series
+Name an area in an airport
+Name the capital city of any country
+Name a rom-com movie
+Name a one-word animal that starts with ch or sh
+Name a country with the letter P in its name
+Name a movie that released before 2010
+Name a one-word color
+Name a living animal that is bigger or heavier than a human
+Name something designed to stick to your skin that you peel off later
+Name a fictional food or drink
+Name a website or app designed for learning or studying
+Name a sport where competitors wear helmets
+Name a movie where the main character is a talking animal
+Name a one-word food or drink that ends in O
+Name a one-word animal whose name is 7 or more letters
+Name a country with the letter B in its name
+Name a fictional weapon
+Name a job focused on repairing physical things
+Name a movie involving time travel
+Name a country where French is an official language
+Name a brand with an animal in its logo
+Name a billionaire
+Name an extinct animal that isn't an insect or invertebrate
+Name a living animal that moves on 2 feet and can't fly
+Name a video game you can play on PS5, Xbox Series X, Nintendo Switch
+Name a country that has been colonized by Spain or Portugal
+Name a chemical element that makes up the human body
+Name something you can see in the sky
+Name a material or product that comes from animals, excluding meat and dairy
+Name a vegetable smaller than an onion
+Name a country where at least 50% of people speak English
+Name a bodily function or biological process
+Name a one-word animal that starts with T
+Name a Disney Channel, Nickelodeon or Cartoon Network show
+Name a branch or denomination of Christianity, Islam, Hinduism, Judaism, or Buddhism
+Name a podcast
+Name a villain from Star Wars, DC, or Lord of the Rings
+Name a part of the human body below the waist
+Name a recurring household bill
+Name an animal that stings
+Name a living bird bigger than a chicken
+Name a food with a filling inside
+Name an animated TV show that isn't meant for kids
+Name a country bigger than the UK but smaller than Egypt, by area
+Name a fruit or vegetable that is red on the inside
+Name a setting you can change in a video game's settings
+Name a country with and in its name
+Name an animal that can run faster than a human
+Name a movie from Pixar, DreamWorks Animation, Illumination, Disney Animation, Sony Pictures Animation or Blue Sky Studios
+Name a milk-based drink
+Name something that's mined from the ground
+Name a sea animal that isn't a fish or a bird
+Name something that's naturally blue
+Name a superhero that can fly
+Name a skincare brand
+Name a substance the human body produces
+Name a news organization
+Name something shaped like a cone
+Name a holiday from anywhere in the world that is celebrated in October, November or December
+Name a music release type or format
+Name a Halloween tradition
+Name a chocolate with wafer, biscuit, or cookie in it
+Name a fictional character who wears a mask
+Name a sport where athletes do flips or somersaults
+Name a city whose name starts with the word Los, Las, La, Le, El or The
+Name something used to grip or pick things up
+Name a French or British food
+Name something you can measure about the human body
+Name a strategy board game
+Name a pasta dish
+Name a part of the human head
+Name a region of the world that spans multiple countries
+Name a bird that lives in or by water
+Name something with physical pages
+Name a type of ball outside of sports
+Name a currency worth less than the US dollar
+Name a city whose name ends in -ton
+Name something traditionally expressed as a percentage
+Name a type of bed
+Name a food or ingredient that costs over 100 dollars per kilogram
+Name a song that has reached number one on the Billboard Hot 100
+Name something with a spinning blade
+Name a book that has sold at least 500,000 copies worldwide
+Name a branded fast-food menu item
+Name an animal that sprays, spits or squirts something to defend itself
+Name a part of a 2D or 3D shape
+Name a character from Attack on Titan, One Piece or Naruto
+Name a job with median annual pay over 100,000 dollars in the US
+Name a game with a number in its name
+Name a TV show that's rated 8.5+ on IMDb
+Name a food you have to shell or crack open before eating
+Name something sold as a stick or in sticks
+Name a food made by mashing or puréeing
+Name a country with the letter D in its name
+Name a foul or rule violation in soccer, basketball, American football, cricket, rugby or ice hockey
+Name an underwear brand
+Name a fruit bigger than an apple
+Name a symbol of Hinduism, Judaism, Christianity, Islam or Buddhism
+Name a perfume or fragrance brand
+Name a way to prepare potatoes
+Name an animal whose name is exactly four letters long
+Name someone who has won the Ballon d'Or
+Name something that comes in a pump bottle
+Name a service you can get at a hair salon
+Name a feature a modern car can have
+Name a type of astronomical object found in space
+Name a professional sports league with at least 10 teams
+Name a living animal that weighs over a metric ton
+Name an app or website for writing documents or taking notes
+Name a language that's the most spoken in at least one country in the Americas
+Name the current capital of a state or province anywhere in the world
+Name an Amazon product, service or company Amazon owns
+Name a fruit or vegetable that starts with B
+Name a driving or traffic offence
+Name a job-search website or app
+Name an item of winter clothing
+Name a body part animals have but humans don't
+Name something sold in a roll
+Name a type of table
+Name a metal
+Name a musical instrument
+Name a vegetable that's botanically a fruit
+Name a body part people have exactly two of
+Name a Justin Bieber song
+Name an animal named after another animal
+Name a sports car brand
+Name something that uses a filter
+Name a part of a shirt
+Name a dating app
+Name a food you'd grate
+Name a stand-up comedian
+Name a language ending in -ese
+Name a sport or game where you score by getting a ball or object into a hole, hoop, basket or pocket
+Name a type of brush
+Name a part of a fruit
+Name a country whose name ends in an ee sound
+Name a gas station chain
+Name a country with both an O and an R in its name
+Name a TV genre
+Name a device used to magnify things
+Name a type of structure built underground
+Name a place in the Harry Potter universe
+Name a type of shot in a sport
+Name a part of a shoe
+Name a feature on Instagram
+Name a sauce used in Asian cooking
+Name a music festival
+Name a coffee shop chain
+Name an item designed to be filled with air
+Name a medical scan or imaging test
+Name something sold in a tube
+Name a symbol or shape that appears on a national flag
+Name a type of chair
+Name a superpower Superman has in the comics or movies
+Name a language whose English name ends in -ish
+Name something used to block the sun
+Name a fruit or vegetable that starts with S
+Name a territory, constituent country or autonomous region
+Name a Fire-type Pokémon
+Name an app that comes preinstalled on an iPhone
+Name a deodorant brand
+Name something with wheels that isn't a vehicle
+Name a country with three syllables
+Name a country without the letter A in its name
+Name an African country's most-spoken language
+Name a US city with over 100,000 people
+Name a country that borders China
+Name a kitchen appliance
+Name a way to prepare eggs
+Name a country whose name starts with A
+Name a celebrity chef
+Name a salad dressing
+Name a language named after a country
+Name a current top 200 website
+Name the most widely spoken language of an Asian country
+Name a mammal or reptile that lives in rivers
+Name a city in Japan
+Name a type of door
+Name something used to sweeten coffee
+Name a place people keep or store cash
+Name an area in a school
+Name a national capital city that starts with A or C
+Name a type of milk
+Name a country that borders India by land or sea
+Name an occupation that involves working with children
+Name an animal that produces its own light
+Name a current Fortune 500 CEO
+Name a word for a baby animal
+Name a country that has nuclear weapons
+Name a domesticated animal
+Name a cat breed
+Name a Water-type Pokémon
+Name something you drink out of
+Name a fruit with a core
+Name a leafy green
+Name a modern country that Alexander the Great's empire reached
+Name a mammal that lives underground
+Name a legume
+Name a Google product
+Name an animal that can top 40 mph
+Name a grain or cereal crop
+Name a country whose name starts with I
+Name a delivery service
+Name a country in Eastern Europe
+Name a city with more than 10 million people in its metro area
+Name a sacred text of Christianity, Islam, Judaism, Hinduism, or Buddhism
+Name a protagonist of a Marvel Cinematic Universe movie
+Name a black and white mammal or bird
+Name a type of skincare product
+Name a city in California
+Name an animal with horns or antlers
+Name a Spanish or Portuguese dish
+Name a city in Canada with over 100,000 people
+Name an animal with a shell
+Name a Middle Eastern dish
+Name a country where English is an official language
+Name an animal that lives in the Arctic or Antarctica
+Name a dead language
+Name a luxury watch brand
+Name a mammal with stripes
+Name a style or cut of jeans
+Name a national capital city that starts with B
+Name a mammal or reptile that lives in the desert
+Name a type of cookie
+Name a European country
+Name a living mammal native to Africa
+Name an American fast food chain
+Name a capital city in the Americas
+Name an animal known for camouflage
+Name a country that fought in World War II
+Name a type of gun
+Name a creature you might find in a tide pool
+Name an HBO show
+Name a country in Oceania
+Name an animal whose name starts with B
+Name a deep fried food
+Name a national capital that is not its country's largest city
+Name a vegetable
+Name a food served on a stick
+Name a company in the S&P 500
+Name an animal that has an X in its name
+Name a curry
+Name a fruit
+Name a type of wood
+Name a fermented food or drink
+Name a country or territory with the Union Jack on its flag
+Name a living bird that cannot fly
+Name a dip
+Name a berry
+Name an airline
+Name a doughnut chain
+Name a country where Christianity is the majority religion
+Name a prehistoric mammal
+Name a candy
+Name a country whose name starts with C
+Name an animal that has a G in its name
+Name a pancake or flatbread from any cuisine
+Name a country with a crescent on its flag
+Name a math symbol
+Name a street food from anywhere in the world
+Name a bottled water brand
+Name a country that was once part of the British Empire
+Name a chocolate brand
+Name a country with a coastline on the Indian Ocean
+Name an animal that lives in the jungle
+Name an apple variety
+Name a Korean dish
+Name a lake
+Name a movie Matt Damon appears in
+Name a road or traffic sign
+Name a type of mushroom
+Name a sauce
+Name a country whose name starts with M
+Name a mollusk or shellfish
+Name a German dish
+Name a country that starts with the letter L
+Name an island in the Mediterranean
+Name an animal that hibernates
+Name a country bigger than Mexico, by area
+Name a river in the Americas
+Name an Indian dish
+Name a country whose name ends in the letter O
+Name a sea
+Name a songbird
+Name a country whose name starts with B
+Name a marsupial
+Name an Italian dish
+Name a country with a four-letter English name
+Name a type of turtle or tortoise
+Name a soda brand
+Name a country that has a G in its name
+Name a piece of furniture
+Name a current world leader
+Name a language with more than 50 million total speakers
+Name a nocturnal animal
+Name a breakfast food or drink
+Name a sovereign country whose flag contains both red and white
+Name an animal threatened with extinction
+Name a cut of beef
+Name a country that shares a land or maritime border with Russia
+Name a farm animal
+Name a rice dish
+Name a world capital city south of the equator
+Name a lizard species
+Name a type of pastry or doughnut
+Name a country that no longer exists
+Name a horse breed
+Name a Japanese dish
+Name a Caribbean island
+Name a beetle
+Name a type of salad
+Name an African capital city
+Name a type of waterfowl
+Name a Mexican dish
+Name a country whose name starts with S
+Name a crab or other crustacean
+Name a cooking method
+Name a country in the Middle East
+Name a parrot species
+Name a condiment
+Name a US state
+Name a freshwater fish
+Name a type of dumpling
+Name a country with a monarchy
+Name an animal whose name starts with H
+Name a type of pie
+Name a country in the European Union
+Name an owl species
+Name a type of cake
+Name a strait
+Name a creature that lives in the deep sea
+Name a variety of chili pepper
+Name a country whose flag uses all three of red, white, and blue, and no other colors
+Name a rodent
+Name a type of tea
+Name the capital city of an Asian country
+Name a species of spider
+Name a type of sandwich
+Name a country that drives on the left
+Name an amphibian
+Name an ice cream flavor
+Name a country where Spanish is an official language
+Name a primate species
+Name a candy bar
+Name a mountain range
+Name an insect
+Name a soup
+Name a former republic of the Soviet Union
+Name a dinosaur
+Name a pizza topping
+Name a desert
+Name a snake species
+Name a coffee drink
+Name a country with a Mediterranean coastline
+Name a whale species
+Name a tropical fruit
+Name a river in Europe
+Name a penguin species
+Name a breakfast cereal brand
+Name a landlocked country
+Name a shark species
+Name a cocktail
+Name a country in Asia
+Name a venomous or poisonous animal
+Name an herb or spice
+Name an island country
+Name a species of wild cat
+Name a type of bread
+Name the capital city of a European country
+Name a citrus fruit
+Name a movie that won the Best Picture Oscar
+Name a country in the Americas
+Name a bird of prey
+Name a type of cheese
+Name an animal whose name starts with K
+Name a country in Africa
+Name a pasta shape
+Name an animal that eats fish
+Name a movie that's at least two and a half hours long
+Name one of the Seven Wonders of the World
+Name a fictional vampire, werewolf, or ghost
+Name an object that has a lens
+Name a natural habitat
+Name something that uses suction

@@ -1,0 +1,7 @@
+gen/cache/
+gen/run.log
+gen/review.txt
+gen/qdata_test/
+gen/state_test/
+__pycache__/
+*.pyc

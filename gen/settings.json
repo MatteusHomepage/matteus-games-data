@@ -1,0 +1,5 @@
+{
+  "run_minutes": 325,
+  "publish_min_minutes": 45,
+  "workers": 4
+}
