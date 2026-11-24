@@ -37,9 +37,11 @@ class LLM:
     def alive(self):
         return self.pool.alive()
 
-    def ask(self, system, user, schema, max_tokens=1500, temp=0.2):
+    def ask(self, system, user, schema, max_tokens=1500, temp=0.2, kind="bulk"):
         try:
-            return self.pool.chat_json(system, user, schema, max_tokens=max_tokens, temp=temp)
+            if kind == "judge":
+                return self.pool.chat_json(system, user, schema, max_tokens=max_tokens, temp=temp, prefer=("groq", "nvidia", "sambanova", "cloudflare"))
+            return self.pool.chat_json(system, user, schema, max_tokens=max_tokens, temp=temp, skip=("groq",))
         except NoProvider:
             raise
         except Exception:
@@ -83,7 +85,7 @@ class LLM:
             % (question, "; ".join(names), t)
         )
         for _ in range(2):
-            d = self.ask(system, user, schema, max_tokens=600)
+            d = self.ask(system, user, schema, max_tokens=600, kind="judge")
             if isinstance(d, dict) and isinstance(d.get("keep"), bool) and isinstance(d.get("recall"), (int, float)):
                 d["recall"] = max(1, min(5, int(d["recall"])))
                 d["fun"] = int(d.get("fun") or 3) if isinstance(d.get("fun"), (int, float)) else 3
@@ -249,7 +251,7 @@ class LLM:
         }
         system = (
             "You judge guesses in a trivia typing game. The player had to type a valid answer to the prompt. "
-            "A guess is valid only if it is a real, correct answer; typos of a real answer are valid. Be strict about made up names, jokes and wrong categories."
+            "A guess is valid if a reasonable person would accept it as an answer to the prompt, also when an expert might quibble about the wording; typos of a real answer are valid. Reject made up names, jokes and clearly wrong categories."
         )
         user = (
             'Prompt: "%s"\nSome answers already accepted: %s\n\nPlayer guess: "%s"\n'
@@ -257,10 +259,83 @@ class LLM:
             "same_as: if it is just another spelling or name for one of the accepted answers, that accepted answer exactly as written, otherwise an empty string. "
             "aliases: up to 3 other common spellings of it." % (question, "; ".join(names[:60]), guess)
         )
-        d = self.ask(system, user, schema, max_tokens=300, temp=0.0)
+        d = self.ask(system, user, schema, max_tokens=300, temp=0.0, kind="judge")
         if not isinstance(d, dict) or not isinstance(d.get("valid"), bool):
             return None
         d["canonical"] = d.get("canonical").strip() if isinstance(d.get("canonical"), str) else ""
         d["same_as"] = d.get("same_as").strip() if isinstance(d.get("same_as"), str) else ""
         d["aliases"] = [x.strip() for x in d.get("aliases", []) if isinstance(x, str) and x.strip()][:3] if isinstance(d.get("aliases"), list) else []
         return d
+
+    PERSONAS = ("a Swedish adult", "an American adult", "a British adult", "a Swedish teenager or young adult")
+
+    def survey_once(self, question, count=60, who=None):
+        schema = {"type": "object", "properties": {"answers": {"type": "array", "items": {"type": "string"}}}}
+        system = (
+            "You simulate a street survey for a trivia game. Many different people were each asked one question out loud and gave the first valid answer that came to mind. "
+            "You know which answers come up most often and which are rare."
+        )
+        user = (
+            'Survey question: "%s"\nThe people asked were mostly %s, plus some from other countries.\n'
+            "List the %d most frequent answers, most frequent first. "
+            "Include every answer an ordinary person would give, also everyday or loosely fitting ones that a strict expert might not count, because a person who gives them should be marked right. "
+            "Use the common English name of each answer, one answer per entry, no explanations. Only real answers. Return JSON with the key answers." % (question, who or self.PERSONAS[0], count)
+        )
+        d = self.ask(system, user, schema, max_tokens=1600, temp=0.6)
+        if not isinstance(d, dict) or not isinstance(d.get("answers"), list):
+            return None
+        out = []
+        seen = set()
+        for x in d["answers"]:
+            if isinstance(x, str):
+                x = x.strip()
+                k = core.fold(x)
+                if x and len(x) <= 60 and k and k not in seen:
+                    seen.add(k)
+                    out.append(x)
+        return out or None
+
+    def alias_batch(self, question, names):
+        schema = {
+            "type": "object",
+            "properties": {"items": {"type": "array", "items": {"type": "object", "properties": {"name": {"type": "string"}, "also": {"type": "array", "items": {"type": "string"}}}}}},
+        }
+        system = "You list the other ways people type an answer in a trivia typing game: other spellings, abbreviations, short forms, nicknames, and the name without its first or last word when people really say it that way."
+        user = (
+            'Prompt: "%s"\nAnswers:\n%s\n\n'
+            "For each answer give also: up to 4 other ways a player might type exactly the same answer. Only genuinely the same thing. No other answers from the list, no plurals, no typos. "
+            "Use an empty list if there are none. Return JSON with the key items, using the exact name of each answer." % (question, "\n".join(names))
+        )
+        d = self.ask(system, user, schema, max_tokens=2400, temp=0.0, kind="judge")
+        out = {}
+        if isinstance(d, dict) and isinstance(d.get("items"), list):
+            for x in d["items"]:
+                if isinstance(x, dict) and isinstance(x.get("name"), str) and isinstance(x.get("also"), list):
+                    out[x["name"]] = [a.strip() for a in x["also"] if isinstance(a, str) and a.strip()][:4]
+        return out
+
+    def order_check(self, question, top, below):
+        schema = {
+            "type": "object",
+            "properties": {
+                "invalid": {"type": "array", "items": {"type": "string"}},
+                "too_low": {"type": "array", "items": {"type": "string"}},
+                "too_high": {"type": "array", "items": {"type": "string"}},
+            },
+        }
+        system = "You check the order of an answer list for a trivia typing game. The list is ordered by how many people would name each answer, most common first."
+        user = (
+            'Prompt: "%s"\n\nTop of the list, in order:\n%s\n\nSome answers from further down the list, in no particular order:\n%s\n\n'
+            "Return JSON. invalid: answers from either list that are NOT valid answers to the prompt. "
+            "too_low: answers from the further-down list that ordinary people would name as often as the top answers (at most 8). "
+            "too_high: answers from the top list that are clearly much less common than most answers below them (at most 8). Use the exact names. Empty lists are fine."
+            % (question, "\n".join("%d. %s" % (i + 1, n) for i, n in enumerate(top)), "\n".join(below))
+        )
+        d = self.ask(system, user, schema, max_tokens=700, temp=0.0, kind="judge")
+        if not isinstance(d, dict):
+            return None
+        out = {}
+        for k in ("invalid", "too_low", "too_high"):
+            v = d.get(k)
+            out[k] = [x.strip() for x in v if isinstance(x, str) and x.strip()] if isinstance(v, list) else []
+        return out

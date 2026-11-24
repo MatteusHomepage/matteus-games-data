@@ -42,18 +42,23 @@ def load_item(out, where, qid):
     return None
 
 
-def position(names, new_sl):
+def position(names, new_sl, n_rep=1):
     head = names[:150]
     g = wiki.ground([n.split("|")[0] for n in head], 1)
     last = None
+    found = None
     for i, n in enumerate(head):
         sl = g.get(n.split("|")[0], (None, None))[1]
         if sl is None:
             continue
         last = i
         if sl < new_sl:
-            return i
-    return min(len(names), (last + 1) if last is not None else 40)
+            found = i
+            break
+    if found is None:
+        found = min(len(names), (last + 1) if last is not None else 40)
+    cap = 120 if n_rep < 2 else 60 if n_rep < 3 else 30 if n_rep < 5 else 12
+    return min(found, cap, len(names))
 
 
 def judge_all(st, cfg, llm, log, out):
@@ -151,7 +156,7 @@ def judge_all(st, cfg, llm, log, out):
             for a in d["aliases"]:
                 if core.fold(a) not in known and len(parts) < 6:
                     parts.append(a.replace("|", "/"))
-            pos = position(names, sl)
+            pos = position(names, sl, n_rep)
             names.insert(pos, "|".join(parts))
             known = {}
             for j, n in enumerate(names):

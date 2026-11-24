@@ -22,13 +22,14 @@ def variants(name):
     return out
 
 
-def ground(names, min_sl=1):
+def ground(names, min_sl=1, thorough=True):
     names = [n for n in dict.fromkeys(x.strip() for x in names) if n and len(n) <= 80]
     got = {}
-    for i in range(0, len(names), 50):
-        chunk = names[i : i + 50]
-        vals = " ".join('"%s"@en' % esc(v) for n in chunk for v in variants(n))
-        for prop in ("rdfs:label", "skos:altLabel"):
+    for prop in ("rdfs:label", "skos:altLabel"):
+        todo = names if (thorough or not got) else [n for n in names if n not in got]
+        for i in range(0, len(todo), 50):
+            chunk = todo[i : i + 50]
+            vals = " ".join('"%s"@en' % esc(v) for n in chunk for v in variants(n))
             try:
                 rows = core.sparql("SELECT ?lab ?x ?sl WHERE { VALUES ?lab { %s } ?x %s ?lab . ?x wikibase:sitelinks ?sl . FILTER(?sl >= %d) }" % (vals, prop, min_sl))
             except Exception:

@@ -13,6 +13,7 @@ import recipes
 from llm import LLM
 import krill
 import auto
+import quality
 import wiki
 
 BASE = core.BASE
@@ -422,7 +423,7 @@ def add_recalled(ans, rec, cfg, log):
 
 def refine(llm, p, cfg, log):
     ans = p["ans"]
-    head = ans[:60]
+    head = ans[:int(cfg.get("likely_names", 40))]
     names = [a["n"] for a in head]
     q = p["q"]
     tail = auto.tail_sample(ans)
@@ -441,11 +442,12 @@ def refine(llm, p, cfg, log):
             return None
         if bad:
             ans = [a for a in ans if core.fold(a["n"]) not in bad]
-            head = ans[:60]
+            head = ans[:int(cfg.get("likely_names", 40))]
             names = [a["n"] for a in head]
     b = (d.get("better") or "").strip()
     if b.startswith("Name") and 15 < len(b) < 110 and abs(len(b) - len(q)) < 40:
         q = b
+    hn = len(head)
     p = dict(p)
     if p.get("auto"):
         lvl = auto.level_for(dict(p, ans=ans), d["recall"], cfg)
@@ -458,21 +460,9 @@ def refine(llm, p, cfg, log):
         level = lvl
     else:
         level = raise_level(p, d, log)
-    pcts = llm.likely(q, names) if int(cfg.get("likely_rounds", 1)) > 0 else None
-    if pcts is not None:
-        sl_rank = {n: i for i, n in enumerate(names)}
-        vals = sorted((x for x in pcts.values() if x is not None), reverse=True)
-        order = sorted(names, key=lambda n: sl_rank[n] + (vals.index(pcts[n]) if pcts[n] is not None else sl_rank[n]))
-        pos = {n: i for i, n in enumerate(order)}
-        head = [a for _, a in sorted(((pos[a["n"]], a) for a in head), key=lambda t: t[0])]
-    rec = llm.recall(q, int(cfg.get("recall_count", 40)))
-    if rec:
-        first, seen, added = add_recalled(ans, rec, cfg, log)
-        log("   AI recalled %d, %d of them are in the list%s" % (len(rec), len(first) - added, (", %d added from Wikidata" % added) if added else ""))
-        head = first + [a for a in head if a["id"] not in seen]
-        ans = head + [a for a in ans[60:] if a["id"] not in seen]
-    else:
-        ans = head + ans[60:]
+    ans, qs = quality.improve(llm, q, ans, cfg, log, level=level, grow=False)
+    if qs.get("survey"):
+        log("   survey: %d of the %d most common answers were in the list, %d added, %d moved, %d spellings added" % (qs.get("covered", 0), qs.get("top", 0), qs["added"], qs["moved"], qs["aliases"]))
     p["q"] = q
     p["ans"] = ans
     p["level"] = level
@@ -525,37 +515,44 @@ def publish(st, cfg, log, force=False):
 
 
 def flush(st, cfg, log):
-    if not st["pending"]:
+    hide = st.get("hide_new") or []
+    if not st["pending"] and not hide and not st.get("dirty"):
         return
     out = out_dir(cfg)
     os.makedirs(out, exist_ok=True)
     mp = os.path.join(out, "manifest.json")
     man = json.load(open(mp, encoding="utf-8")) if os.path.exists(mp) else {"v": 0, "n": 0, "idx": []}
-    man["n"] = man.get("n", 0) + 1
-    name = "b%05d.json" % man["n"]
-    raw = {}
-    for x in st["pending"]:
-        raw.setdefault(x["cat"], {}).setdefault(x["lvl"], []).append(x["item"])
-        it = x["item"]
-        base = core.LEVELS.index(x["lvl"])
-        for lv in x.get("lv") or [x["lvl"]]:
-            man["idx"].append([it[0], x["cat"], lv, it[4], it[5], name, core.LEVELS.index(lv) - base])
-        st.setdefault("sigs", []).append(x.get("sig", []))
-        st.setdefault("texts", []).append(it[1])
-    json.dump(raw, open(os.path.join(out, name), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
-    if cfg.get("review_file", True):
-        with open(os.path.join(BASE, "review.txt"), "a", encoding="utf-8") as rv:
-            for x in st["pending"]:
-                it = x["item"]
-                lv = x.get("lv") or [x["lvl"]]
-                rv.write("%s / %s%s / %d answers\n  %s\n  %s\n\n" % (x["cat"], x["lvl"], (" (also in " + ", ".join(lv[1:]) + ")") if len(lv) > 1 else "", len(it[2]), it[1], "; ".join(a.split("|")[0] for a in it[2][:10])))
-    st["version"] += 1
-    man["v"] = man["n"]
-    man["t"] = int(time.time())
-    tmp = mp + ".tmp"
-    json.dump(man, open(tmp, "w", encoding="utf-8"), separators=(",", ":"))
-    os.replace(tmp, mp)
-    log("saved %d questions (manifest v%d, %d in total)" % (len(st["pending"]), man["v"], len(man["idx"])))
+    if st["pending"]:
+        man["n"] = man.get("n", 0) + 1
+        name = "b%05d.json" % man["n"]
+        raw = {}
+        for x in st["pending"]:
+            raw.setdefault(x["cat"], {}).setdefault(x["lvl"], []).append(x["item"])
+            it = x["item"]
+            base = core.LEVELS.index(x["lvl"])
+            for lv in x.get("lv") or [x["lvl"]]:
+                man["idx"].append([it[0], x["cat"], lv, it[4], it[5], name, core.LEVELS.index(lv) - base])
+            st.setdefault("sigs", []).append(x.get("sig", []))
+            st.setdefault("texts", []).append(it[1])
+        json.dump(raw, open(os.path.join(out, name), "w", encoding="utf-8"), ensure_ascii=False, separators=(",", ":"))
+        if cfg.get("review_file", True):
+            with open(os.path.join(BASE, "review.txt"), "a", encoding="utf-8") as rv:
+                for x in st["pending"]:
+                    it = x["item"]
+                    lv = x.get("lv") or [x["lvl"]]
+                    rv.write("%s / %s%s / %d answers\n  %s\n  %s\n\n" % (x["cat"], x["lvl"], (" (also in " + ", ".join(lv[1:]) + ")") if len(lv) > 1 else "", len(it[2]), it[1], "; ".join(a.split("|")[0] for a in it[2][:10])))
+    if hide:
+        man["hide"] = sorted(set(man.get("hide", [])) | set(hide))
+    if st["pending"] or hide:
+        st["version"] += 1
+        man["v"] = man.get("v", 0) + 1
+        man["t"] = int(time.time())
+        tmp = mp + ".tmp"
+        json.dump(man, open(tmp, "w", encoding="utf-8"), separators=(",", ":"))
+        os.replace(tmp, mp)
+    log("saved %d questions, %d retired (manifest v%d, %d in total)" % (len(st["pending"]), len(hide), man["v"], len(man["idx"])))
     st["pending"] = []
+    st["hide_new"] = []
+    st["dirty"] = False
     save_state(st, cfg)
     publish(st, cfg, log)

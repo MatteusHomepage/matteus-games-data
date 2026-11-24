@@ -10,6 +10,7 @@ import time
 import auto
 import core
 import gen as G
+import repair
 import rescue
 from providers import NoProvider
 
@@ -65,6 +66,8 @@ def base_counts(man, sigs):
     for cat, lvl, _ in sigs:
         c[(cat, lvl)] = c.get((cat, lvl), 0) + 1.0
     for e in man["idx"]:
+        if len(e[0]) >= 9 and re.search(r"x\d$", e[0]):
+            continue
         k = (e[1], e[2])
         c[k] = c.get(k, 0) + (1.0 if e[6] == 0 else 0.4)
     return c
@@ -433,6 +436,7 @@ def run(args, llm=None):
             bump(item)
             st["done"][key] = "made"
             ids.add(core.make_id(key))
+            st.setdefault("fixed", {})[core.make_id(key)] = int(cfg.get("repair_version", 1))
             state["made"] += 1
             recent["f"].append(p["fam"])
             recent["v"].append(p["vl"])
@@ -482,6 +486,18 @@ def run(args, llm=None):
             state["noai"] = True
         except Exception as e:
             log("rescue problem: %s" % e)
+    if use_llm and cfg.get("repair", True) and not test and not state["noai"]:
+        try:
+            rm = float(cfg.get("repair_minutes", 200))
+            if deadline:
+                rm = min(rm, (deadline - time.time()) / 60.0 - 20)
+            if rm > 5:
+                repair.run(st, cfg, llm, log, G.out_dir(cfg), rm, G.flush, wlock, workers)
+                G.save_state(st, cfg)
+        except NoProvider:
+            state["noai"] = True
+        except Exception as e:
+            log("repair problem: %s" % e)
     for _ in range(max(1, int(cfg.get("producers", 3)))):
         threading.Thread(target=producer, daemon=True).start()
     ths = [threading.Thread(target=worker, daemon=True) for _ in range(workers)]
